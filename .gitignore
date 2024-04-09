@@ -19,6 +19,7 @@ target/
 .idea/vcs.xml
 .idea/uiDesigner.xml
 .idea/misc.xml
+.idea/material_theme_project_new.xml
 
 ### Eclipse ###
 .apt_generated

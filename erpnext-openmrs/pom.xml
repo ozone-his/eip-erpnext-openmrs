@@ -16,14 +16,80 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <camel.frappe.version>1.0.0-SNAPSHOT</camel.frappe.version>
+    <camel.version>4.0.1</camel.version>
+    <openmrs.fhir.version>4.0.0-SNAPSHOT</openmrs.fhir.version>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.ozonehis</groupId>
-      <artifactId>erpnext-fhir-api</artifactId>
+      <artifactId>erpnext-fhir-mapper</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.ozonehis.camel</groupId>
+      <artifactId>camel-frappe</artifactId>
+      <version>${camel.frappe.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openmrs.eip</groupId>
+      <artifactId>openmrs-fhir</artifactId>
+      <version>${openmrs.fhir.version}</version>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.2.4</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <phase>package</phase>
+            <configuration>
+              <artifactSet>
+                <includes>
+                  <include>com.ozonehis:*</include>
+                  <include>com.ozonehis.eip:*</include>
+                  <include>com.ozonehis.camel:*</include>
+                  <include>org.openmrs.eip:*</include>
+                  <include>org.apache.camel:camel-fhir</include>
+                  <include>org.apache.camel:camel-fhir-api</include>
+                  <include>org.apache.commons:*</include>
+                  <include>commons-io:commons-io</include>
+                  <include>org.liquibase:*</include>
+                  <include>ca.uhn.hapi.fhir:*</include>
+                  <include>org.jetbrains.kotlin:*</include>
+                  <include>com.squareup.okhttp3:okhttp</include>
+                  <include>com.squareup.okio:*</include>
+                  <include>com.fasterxml.jackson.core:jackson-databind</include>
+                  <include>org.apache.httpcomponents:*</include>
+                  <include>com.google.guava:*</include>
+                </includes>
+              </artifactSet>
+              <filters>
+                <filter>
+                  <artifact>*:*</artifact>
+                  <excludes>
+                    <exclude>META-INF/*.SF</exclude>
+                    <exclude>META-INF/*.DSA</exclude>
+                    <exclude>META-INF/*.RSA</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/okio.kotlin_module</exclude>
+                    <exclude>META-INF.versions.9.module-info</exclude>
+                  </excludes>
+                </filter>
+              </filters>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
