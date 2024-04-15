@@ -8,14 +8,20 @@
 package com.ozonehis.eip.erpnext.openmrs.routes;
 
 import com.ozonehis.eip.erpnext.openmrs.processors.MedicationRequestProcessor;
+import lombok.Setter;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
 import org.hl7.fhir.r4.model.MedicationRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Setter
 @Component
-public class MedicationRequestRouting extends RouteBuilder {
+public class MedicationRequestRouting extends RouteBuilder implements Routing {
+
+    private static final String MEDICATION_REQUEST_TO_QUOTATION_ROUTER = "medication-request-to-quotation-router";
+
+    private static final String MEDICATION_REQUEST_TO_QUOTATION_PROCESSOR = "medication-request-to-quotation-processor";
 
     private static final String MEDICATION_REQUEST_ID = "medication.request.id";
 
@@ -30,18 +36,33 @@ public class MedicationRequestRouting extends RouteBuilder {
     @Override
     public void configure() {
         // spotless:off
-		from("direct:fhir-medicationrequest")
-			.routeId("medication-request-to-quotation-router")
-			.process(exchange -> {
+		from(incomingUri())
+				.routeId(MEDICATION_REQUEST_TO_QUOTATION_ROUTER)
+				.process(exchange -> {
 					MedicationRequest medicationRequest = exchange.getMessage().getBody(MedicationRequest.class);
 					exchange.setProperty(FHIR_RESOURCE_TYPE, medicationRequest.fhirType());
 					exchange.setProperty(MEDICATION_REQUEST_ID, medicationRequest.getIdElement().getIdPart());
 					exchange.getMessage().setBody(medicationRequest);
 				})
-			.toD("openmrs-fhir://?id=${exchangeProperty." + MEDICATION_REQUEST_ID + "}&resource=${exchangeProperty." + FHIR_RESOURCE_TYPE + "}&include=" + MEDICATION_REQUEST_INCLUDE_PARAMS)
-			.process(medicationRequestProcessor)
-			.log(LoggingLevel.DEBUG,
-						"MedicationRequest with ID ${exchangeProperty." + MEDICATION_REQUEST_ID + "} processed.").end();
+				.toD("openmrs-fhir://?id=${exchangeProperty." + MEDICATION_REQUEST_ID + "}&resource=${exchangeProperty." + FHIR_RESOURCE_TYPE + "}&include=" + MEDICATION_REQUEST_INCLUDE_PARAMS)
+				.to(outgoingUri()).end();
+		
+		from(outgoingUri())
+				.routeId(MEDICATION_REQUEST_TO_QUOTATION_PROCESSOR)
+				.process(medicationRequestProcessor)
+				.log(LoggingLevel.DEBUG,
+						"MedicationRequest with ID ${exchangeProperty." + MEDICATION_REQUEST_ID + "} processed.")
+				.end();
 		// spotless:on
+    }
+
+    @Override
+    public String incomingUri() {
+        return "direct:fhir-medicationrequest";
+    }
+
+    @Override
+    public String outgoingUri() {
+        return "direct:" + MEDICATION_REQUEST_TO_QUOTATION_PROCESSOR;
     }
 }

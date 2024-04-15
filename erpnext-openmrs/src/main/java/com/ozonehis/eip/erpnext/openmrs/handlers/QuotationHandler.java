@@ -16,6 +16,7 @@ import com.ozonehis.eip.model.erpnext.FrappeSingularDataWrapper;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.io.IOException;
 import java.util.HashMap;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@Setter
 @Component
 public class QuotationHandler {
 

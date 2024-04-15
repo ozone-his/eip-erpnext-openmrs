@@ -15,6 +15,7 @@ import com.ozonehis.eip.mappers.erpnext.QuotationMapper;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.io.IOException;
 import java.util.List;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
 import org.apache.camel.Exchange;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@Setter
 @Component
 public class ServiceRequestProcessor implements Processor {
 

@@ -23,6 +23,8 @@ import com.ozonehis.eip.model.erpnext.Link;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -30,6 +32,8 @@ import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Setter
+@Getter
 @Component
 public class PatientProcessor implements Processor {
 
