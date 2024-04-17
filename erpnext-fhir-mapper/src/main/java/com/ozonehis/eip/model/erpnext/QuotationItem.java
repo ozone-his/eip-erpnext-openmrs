@@ -19,11 +19,17 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class QuotationItem implements ERPNextDocument {
 
+    @JsonProperty("custom_external_id")
+    private String customExternalID;
+
     @JsonProperty("item_code")
     private String itemCode;
 
     @JsonProperty("qty")
     private float quantity;
+
+    @JsonProperty("uom")
+    private String unitOfMeasure;
 
     @JsonProperty("description")
     private String description;

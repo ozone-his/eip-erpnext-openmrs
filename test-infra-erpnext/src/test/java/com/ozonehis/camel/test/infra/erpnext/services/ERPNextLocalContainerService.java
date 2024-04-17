@@ -9,11 +9,16 @@ package com.ozonehis.camel.test.infra.erpnext.services;
 
 import com.ozonehis.camel.test.infra.erpnext.common.ERPNextProperties;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.testcontainers.containers.ComposeContainer;
 import org.testcontainers.containers.wait.strategy.Wait;
+import org.testcontainers.shaded.org.apache.commons.io.FileUtils;
+import org.testcontainers.shaded.org.apache.commons.io.IOUtils;
 
 @Slf4j
 public class ERPNextLocalContainerService implements ERPNextService {
@@ -64,8 +69,7 @@ public class ERPNextLocalContainerService implements ERPNextService {
         try (var container = new ComposeContainer(getFile("docker/compose-erpnext.yaml"))
                 .withLocalCompose(true)
                 .withStartupTimeout(java.time.Duration.ofMinutes(5))
-                .withExposedService(SERVICE_NAME, ERPNextProperties.DEFAULT_SERVICE_PORT, Wait.forListeningPort())
-                .withTailChildContainers(true)) {
+                .withExposedService(SERVICE_NAME, ERPNextProperties.DEFAULT_SERVICE_PORT, Wait.forListeningPort())) {
 
             return container;
         } catch (Exception e) {
@@ -76,5 +80,17 @@ public class ERPNextLocalContainerService implements ERPNextService {
     protected File getFile(String fileName) {
         URL url = getClass().getClassLoader().getResource(fileName);
         return new File(Objects.requireNonNull(url).getPath());
+    }
+
+    protected File getDockerComposeFile(String fileName) throws IOException {
+        ClassPathResource resource = new ClassPathResource(fileName);
+        InputStream inputStream = resource.getInputStream();
+        File composeERPNextDockerComposeFile = File.createTempFile("compose-erpnext", ".yaml");
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, composeERPNextDockerComposeFile);
+        } finally {
+            IOUtils.closeQuietly(inputStream);
+        }
+        return composeERPNextDockerComposeFile;
     }
 }

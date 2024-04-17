@@ -18,8 +18,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.CamelExecutionException;
-import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +54,7 @@ public class QuotationHandler {
         }
     }
 
-    public Quotation getQuotation(String quotationId, Exchange exchange) {
+    public Quotation getQuotation(String quotationId) {
         try (FrappeResponse response =
                 frappeClient.get("Quotation", quotationId).execute()) {
             if (response.code() == HttpStatus.SC_OK) {
@@ -65,12 +63,12 @@ public class QuotationHandler {
                 FrappeSingularDataWrapper<Quotation> quotationWrapper = response.returnAs(typeReference);
                 return quotationWrapper.getData();
             } else {
-                throw new CamelExecutionException(
-                        "Error while retrieving Quotation with UUID: " + quotationId, exchange);
+                log.debug("Quotation with UUID: {} not found", quotationId);
+                return null;
             }
         } catch (FrappeClientException | IOException e) {
-            throw new CamelExecutionException(
-                    "Error while retrieving Quotation with UUID: " + quotationId, exchange, e);
+            log.error("Error while fetching quotation with ID {}", quotationId, e);
+            return null;
         }
     }
 

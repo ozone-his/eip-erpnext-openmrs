@@ -38,7 +38,6 @@
       <artifactId>test-infra-erpnext</artifactId>
       <version>${project.version}</version>
       <type>test-jar</type>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
@@ -72,6 +71,11 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
+            <configuration>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </configuration>
           </execution>
         </executions>
       </plugin>

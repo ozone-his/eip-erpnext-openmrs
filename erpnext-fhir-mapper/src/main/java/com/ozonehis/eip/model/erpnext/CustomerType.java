@@ -7,9 +7,10 @@
  */
 package com.ozonehis.eip.model.erpnext;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AllArgsConstructor;
 
-@Getter
+@AllArgsConstructor
 public enum CustomerType {
     INDIVIDUAL("Individual"),
     COMPANY("Company"),
@@ -18,7 +19,8 @@ public enum CustomerType {
 
     private final String value;
 
-    CustomerType(String value) {
-        this.value = value;
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

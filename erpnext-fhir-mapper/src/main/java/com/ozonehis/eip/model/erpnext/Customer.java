@@ -30,7 +30,7 @@ public class Customer implements ERPNextDocument {
 
     @Nonnull
     @JsonProperty("customer_type")
-    private String customerType;
+    private CustomerType customerType;
 
-    private String gender;
+    private ERPNextGender gender;
 }

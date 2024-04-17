@@ -73,28 +73,35 @@ public class ServiceRequestProcessor implements Processor {
             if (patient == null || encounter == null || serviceRequest == null) {
                 throw new IllegalArgumentException("Patient, Encounter or ServiceRequest not found in the bundle");
             } else {
-                log.info("Processing ServiceRequest for patient with UUID {}", patient.getIdPart());
-                var customer = customerMapper.toERPNext(patient);
-                String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
-                if (eventType == null) {
-                    throw new IllegalArgumentException("Event type not found in the exchange headers");
-                }
-                if ("c".equals(eventType) || "u".equals(eventType)) {
-                    if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
-                            && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
+                if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
+                        && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
+                    log.info("Processing ServiceRequest for patient with UUID {}", patient.getIdPart());
+                    var customer = customerMapper.toERPNext(patient);
+                    String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
+                    if (eventType == null) {
+                        throw new IllegalArgumentException("Event type not found in the exchange headers");
+                    }
+                    if ("c".equals(eventType) || "u".equals(eventType)) {
                         customerHandler.ensureCustomerExistsAndUpdate(producerTemplate, patient);
                         String encounterVisitUuid =
                                 encounter.getPartOf().getReference().split("/")[1];
-                        boolean quotationExists = quotationHandler.quotationExists(encounterVisitUuid);
-                        if (quotationExists) {
-                            Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid, exchange);
+                        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
+                        if (quotation != null) {
+                            // Quotation exists, update it with the new item
+                            Quotation finalQuotation = quotation;
                             this.itemHandler
                                     .createQuotationItemIfItemExists(serviceRequest)
-                                    .ifPresent(quotation::addItem);
+                                    .ifPresent(quotationItem -> {
+                                        if (finalQuotation.hasItem(quotationItem)) {
+                                            log.debug("Quotation item already exists. Already processed skipping...");
+                                        } else {
+                                            finalQuotation.addItem(quotationItem);
+                                        }
+                                    });
                             quotationHandler.sendQuotation(
-                                    producerTemplate, "direct:erpnext-update-quotation-route", quotation);
+                                    producerTemplate, "direct:erpnext-update-quotation-route", finalQuotation);
                         } else {
-                            Quotation quotation = quotationMapper.toERPNext(encounter);
+                            quotation = quotationMapper.toERPNext(encounter);
                             quotation.setTitle(customer.getCustomerName());
                             quotation.setCustomer(customer.getCustomerId());
                             quotation.setCustomerName(customer.getCustomerName());

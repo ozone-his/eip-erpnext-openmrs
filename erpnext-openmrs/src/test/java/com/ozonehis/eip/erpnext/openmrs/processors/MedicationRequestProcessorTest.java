@@ -88,7 +88,7 @@ class MedicationRequestProcessorTest extends BaseProcessorTest {
         Customer customer = new Customer();
         customer.setCustomerId("12345");
         customer.setCustomerName("John Doe");
-        customer.setCustomerType(CustomerType.INDIVIDUAL.getValue());
+        customer.setCustomerType(CustomerType.INDIVIDUAL);
 
         Exchange exchange = createExchange(bundle, "c");
 
@@ -109,7 +109,7 @@ class MedicationRequestProcessorTest extends BaseProcessorTest {
         when(customerMapper.toERPNext(patient)).thenReturn(customer);
         when(itemHandler.createQuotationItemIfItemExists(medicationRequest))
                 .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.QuotationItem()));
-        when(quotationHandler.quotationExists(anyString())).thenReturn(false);
+        when(quotationHandler.getQuotation(anyString())).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
         when(patient.getIdPart()).thenReturn("12345");
         when(customerHandler.customerExists(anyString())).thenReturn(false);
 
@@ -118,10 +118,9 @@ class MedicationRequestProcessorTest extends BaseProcessorTest {
 
         // Verify
         verify(customerHandler, times(1)).ensureCustomerExistsAndUpdate(any(), any());
-        verify(quotationHandler, times(1)).quotationExists(anyString());
         verify(quotationHandler, times(1)).sendQuotation(any(), anyString(), any());
+        verify(quotationHandler, times(1)).getQuotation(anyString());
         verify(itemHandler, times(1)).createQuotationItemIfItemExists(medicationRequest);
-        verify(quotationMapper, times(1)).toERPNext(encounter);
         verify(customerMapper, times(1)).toERPNext(patient);
     }
 

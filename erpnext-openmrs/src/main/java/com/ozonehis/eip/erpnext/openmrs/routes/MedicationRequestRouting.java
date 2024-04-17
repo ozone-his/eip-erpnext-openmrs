@@ -7,6 +7,8 @@
  */
 package com.ozonehis.eip.erpnext.openmrs.routes;
 
+import static com.ozonehis.eip.erpnext.openmrs.Constants.FHIR_RESOURCE_TYPE;
+
 import com.ozonehis.eip.erpnext.openmrs.processors.MedicationRequestProcessor;
 import lombok.Setter;
 import org.apache.camel.LoggingLevel;
@@ -24,8 +26,6 @@ public class MedicationRequestRouting extends RouteBuilder implements Routing {
     private static final String MEDICATION_REQUEST_TO_QUOTATION_PROCESSOR = "medication-request-to-quotation-processor";
 
     private static final String MEDICATION_REQUEST_ID = "medication.request.id";
-
-    private static final String FHIR_RESOURCE_TYPE = "fhir.resource.type";
 
     private static final String MEDICATION_REQUEST_INCLUDE_PARAMS =
             "MedicationRequest:encounter,MedicationRequest:medication,MedicationRequest:patient";

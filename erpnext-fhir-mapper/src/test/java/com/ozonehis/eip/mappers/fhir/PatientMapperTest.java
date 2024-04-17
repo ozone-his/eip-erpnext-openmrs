@@ -30,7 +30,7 @@ public class PatientMapperTest {
     @DisplayName("Should map MALE gender correctly.")
     public void shouldMapMaleGenderCorrectly() {
         Customer customer = new Customer();
-        customer.setGender(ERPNextGender.MALE.name());
+        customer.setGender(ERPNextGender.MALE);
 
         Patient patient = patientMapper.toFhir(customer);
 
@@ -41,7 +41,7 @@ public class PatientMapperTest {
     @DisplayName("Should map FEMALE gender correctly.")
     public void shouldMapFemaleGenderCorrectly() {
         Customer customer = new Customer();
-        customer.setGender(ERPNextGender.FEMALE.name());
+        customer.setGender(ERPNextGender.FEMALE);
 
         Patient patient = patientMapper.toFhir(customer);
 
@@ -52,7 +52,7 @@ public class PatientMapperTest {
     @DisplayName("Should map OTHER gender correctly.")
     public void shouldMapOtherGenderCorrectly() {
         Customer customer = new Customer();
-        customer.setGender(ERPNextGender.OTHER.name());
+        customer.setGender(ERPNextGender.OTHER);
 
         Patient patient = patientMapper.toFhir(customer);
 

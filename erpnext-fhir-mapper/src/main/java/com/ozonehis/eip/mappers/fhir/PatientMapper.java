@@ -23,7 +23,7 @@ public class PatientMapper implements ToFhirMapping<Patient, Customer> {
         Patient patient = new Patient();
         patient.setId(erpnextDocument.getCustomerId()); // This is the patient's ID in the FHIR server
         if (erpnextDocument.getGender() != null) {
-            mapGender(ERPNextGender.valueOf(erpnextDocument.getGender())).ifPresent(patient::setGender);
+            mapGender(erpnextDocument.getGender()).ifPresent(patient::setGender);
         }
         return patient;
     }

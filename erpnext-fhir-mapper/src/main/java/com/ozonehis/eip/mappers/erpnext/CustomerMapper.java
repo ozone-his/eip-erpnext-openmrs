@@ -28,13 +28,13 @@ public class CustomerMapper implements ToERPNextMapping<Patient, Customer> {
         Customer customer = new Customer();
         customer.setCustomerId(patient.getIdPart());
         if (patient.hasGender()) {
-            mapGender(patient.getGender()).ifPresent(erpNextGender -> customer.setGender(erpNextGender.getValue()));
+            mapGender(patient.getGender()).ifPresent(customer::setGender);
         }
         String patientName = getPatientName(patient).orElse("");
         String patientIdentifier = getPreferredPatientIdentifier(patient).orElse("");
 
         customer.setCustomerName(patientName + " - " + patientIdentifier);
-        customer.setCustomerType(CustomerType.INDIVIDUAL.getValue());
+        customer.setCustomerType(CustomerType.INDIVIDUAL);
 
         return customer;
     }

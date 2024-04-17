@@ -38,6 +38,11 @@
             <goals>
               <goal>test-jar</goal>
             </goals>
+            <configuration>
+              <includes>
+                <include>**/*</include>
+              </includes>
+            </configuration>
           </execution>
         </executions>
       </plugin>

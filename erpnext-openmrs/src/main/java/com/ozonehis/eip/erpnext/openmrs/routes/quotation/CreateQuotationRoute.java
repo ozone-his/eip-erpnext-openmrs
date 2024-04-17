@@ -22,8 +22,7 @@ public class CreateQuotationRoute extends RouteBuilder {
 		from("direct:erpnext-create-quotation-route")
 			.routeId("erpnext-create-quotation-route")
 			.to("frappe://post/resource?inBody=resource")
-			.log(LoggingLevel.INFO, "Quotation with the name ${header." + HEADER_FRAPPE_NAME + "} created successfully.")
-				.end();
+			.log(LoggingLevel.INFO, "Quotation with the name ${header." + HEADER_FRAPPE_NAME + "} created.").end();
 		// spotless:on
     }
 }

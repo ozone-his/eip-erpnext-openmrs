@@ -7,6 +7,8 @@
  */
 package com.ozonehis.eip.erpnext.openmrs.processors;
 
+import static com.ozonehis.eip.erpnext.openmrs.Constants.HEADER_EVENT_PROCESSED;
+
 import com.ozonehis.eip.erpnext.openmrs.handlers.CustomerHandler;
 import com.ozonehis.eip.erpnext.openmrs.handlers.ItemHandler;
 import com.ozonehis.eip.erpnext.openmrs.handlers.QuotationHandler;
@@ -79,54 +81,73 @@ public class MedicationRequestProcessor implements Processor {
                         "Invalid Bundle. Bundle must contain Patient, Encounter, MedicationRequest and Medication",
                         exchange);
             } else {
-                log.info("Processing MedicationRequest for Patient with UUID {}", patient.getIdPart());
+                log.debug("Processing MedicationRequest for Patient with UUID {}", patient.getIdPart());
                 String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
                 if (eventType == null) {
-                    throw new IllegalArgumentException("Event type not found in the exchange headers");
+                    throw new IllegalArgumentException("Event type not found in the exchange headers.");
                 }
                 String encounterVisitUuid = encounter.getPartOf().getReference().split("/")[1];
                 if ("c".equals(eventType) || "u".equals(eventType)) {
                     customerHandler.ensureCustomerExistsAndUpdate(producerTemplate, patient);
                     var customer = customerMapper.toERPNext(patient);
-
-                    boolean quotationExists = quotationHandler.quotationExists(encounterVisitUuid);
-                    if (quotationExists) {
-                        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid, exchange);
-                        itemHandler
-                                .createQuotationItemIfItemExists(medicationRequest)
-                                .ifPresent(quotation::addItem);
-                        quotationHandler.sendQuotation(
-                                producerTemplate, "direct:erpnext-update-quotation-route", quotation);
+                    // If the MedicationRequest is canceled, remove the item from the quotation
+                    if (medicationRequest.getStatus().equals(MedicationRequest.MedicationRequestStatus.CANCELLED)) {
+                        handleQuotationWithItems(encounterVisitUuid, medicationRequest, exchange, producerTemplate);
                     } else {
-                        Quotation quotation = quotationMapper.toERPNext(encounter);
-                        quotation.setTitle(customer.getCustomerName());
-                        quotation.setCustomer(customer.getCustomerId());
-                        quotation.setCustomerName(customer.getCustomerName());
-                        itemHandler
-                                .createQuotationItemIfItemExists(medicationRequest)
-                                .ifPresent(quotation::addItem);
-                        quotationHandler.sendQuotation(
-                                producerTemplate, "direct:erpnext-create-quotation-route", quotation);
+                        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
+                        if (quotation != null) {
+                            // If the quotation exists, update it
+                            itemHandler
+                                    .createQuotationItemIfItemExists(medicationRequest)
+                                    .ifPresent(item -> {
+                                        if (quotation.hasItem(item)) {
+                                            quotation.removeItem(item);
+                                        }
+                                        quotation.addItem(item);
+                                    });
+                            quotationHandler.sendQuotation(
+                                    producerTemplate, "direct:erpnext-update-quotation-route", quotation);
+                        } else {
+                            // If the quotation does not exist, create it
+                            Quotation newQuotation = quotationMapper.toERPNext(encounter);
+                            newQuotation.setTitle(customer.getCustomerName());
+                            newQuotation.setCustomer(customer.getCustomerId());
+                            newQuotation.setCustomerName(customer.getCustomerName());
+                            itemHandler
+                                    .createQuotationItemIfItemExists(medicationRequest)
+                                    .ifPresent(newQuotation::addItem);
+                            quotationHandler.sendQuotation(
+                                    producerTemplate, "direct:erpnext-create-quotation-route", newQuotation);
+                        }
                     }
                 } else if ("d".equals(eventType)) {
-                    Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid, exchange);
-                    itemHandler
-                            .createQuotationItemIfItemExists(medicationRequest)
-                            .ifPresent(quotation::removeItem);
-                    if (quotation.hasItems()) {
-                        quotationHandler.sendQuotation(
-                                producerTemplate, "direct:erpnext-update-quotation-route", quotation);
-
-                    } else {
-                        quotationHandler.sendQuotation(
-                                producerTemplate, "direct:erpnext-delete-quotation-route", quotation);
-                    }
+                    handleQuotationWithItems(encounterVisitUuid, medicationRequest, exchange, producerTemplate);
                 } else {
                     throw new IllegalArgumentException("Unsupported event type: " + eventType);
                 }
             }
         } catch (Exception e) {
             throw new CamelExecutionException("Error processing MedicationRequest", exchange, e);
+        }
+    }
+
+    private void handleQuotationWithItems(
+            String encounterVisitUuid,
+            MedicationRequest medicationRequest,
+            Exchange exchange,
+            ProducerTemplate producerTemplate) {
+        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
+        if (quotation != null) {
+            log.debug("Removing item from quotation with ID {}", medicationRequest.getIdPart());
+            quotation.removeItem(medicationRequest.getIdPart());
+
+            String route = quotation.hasItems()
+                    ? "direct:erpnext-update-quotation-route"
+                    : "direct:erpnext-delete-quotation-route";
+            quotationHandler.sendQuotation(producerTemplate, route, quotation);
+        } else {
+            log.debug("Quotation with ID {} already deleted", encounterVisitUuid);
+            exchange.getMessage().setHeader(HEADER_EVENT_PROCESSED, true);
         }
     }
 }

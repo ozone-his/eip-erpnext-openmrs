@@ -7,9 +7,10 @@
  */
 package com.ozonehis.eip.model.erpnext;
 
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.AllArgsConstructor;
 
-@Getter
+@AllArgsConstructor
 public enum ERPNextGender implements ERPNextDocument {
     FEMALE("Female"),
     GENDER_QUEER("Genderqueer"),
@@ -21,7 +22,8 @@ public enum ERPNextGender implements ERPNextDocument {
 
     private final String value;
 
-    ERPNextGender(String value) {
-        this.value = value;
+    @JsonValue
+    public String getValue() {
+        return value;
     }
 }

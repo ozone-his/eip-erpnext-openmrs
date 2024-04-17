@@ -45,9 +45,9 @@ class CustomerMapperTest {
         Customer customer = customerMapper.toERPNext(patient);
 
         assertEquals("123", customer.getCustomerId());
-        assertEquals(ERPNextGender.MALE.getValue(), customer.getGender());
+        assertEquals(ERPNextGender.MALE, customer.getGender());
         assertEquals("Doe, John - ID123", customer.getCustomerName());
-        assertEquals(CustomerType.INDIVIDUAL.getValue(), customer.getCustomerType());
+        assertEquals(CustomerType.INDIVIDUAL, customer.getCustomerType());
     }
 
     @Test

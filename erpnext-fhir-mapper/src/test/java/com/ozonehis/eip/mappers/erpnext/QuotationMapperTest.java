@@ -42,7 +42,7 @@ class QuotationMapperTest {
         // verify
         assertNotNull(quotation);
         assertEquals("1234", quotation.getQuotationId());
-        assertEquals(OrderType.SALES.getName(), quotation.getOrderType());
+        assertEquals(OrderType.SALES, quotation.getOrderType());
         assertEquals("Customer", quotation.getQuotationTo());
     }
 

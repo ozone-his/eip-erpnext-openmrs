@@ -35,7 +35,7 @@ public class UpdateCustomerRoute extends RouteBuilder {
 							.setHeader(HEADER_FRAPPE_RESOURCE, exchange.getProperty(EXCHANGE_PROPERTY_ERPNEXT_ADDRESS));
 				})
 					.toD("frappe://put/resource?doctype=Address")
-				.end()
+				.endChoice()
 			.end();
 		// spotless:on
     }

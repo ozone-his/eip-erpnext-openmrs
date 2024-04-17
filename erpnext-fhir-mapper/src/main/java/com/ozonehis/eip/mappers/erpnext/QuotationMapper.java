@@ -25,7 +25,7 @@ public class QuotationMapper implements ToERPNextMapping<Encounter, Quotation> {
         if (encounter.hasPartOf()) {
             String encounterVisitUuid = encounter.getPartOf().getReference().split("/")[1];
             quotation.setQuotationId(encounterVisitUuid);
-            quotation.setOrderType(OrderType.SALES.getName());
+            quotation.setOrderType(OrderType.SALES);
             quotation.setQuotationTo("Customer");
         } else {
             throw new IllegalArgumentException(

@@ -23,6 +23,7 @@ public class QuotationItemMapper<R extends Resource> implements ToERPNextMapping
     public QuotationItem toERPNext(R resource) {
         QuotationItem quotationItem = new QuotationItem();
         if (resource instanceof ServiceRequest serviceRequest) {
+            quotationItem.setCustomExternalID(serviceRequest.getIdPart());
             if (serviceRequest.hasCode()) {
                 quotationItem.setItemCode(
                         serviceRequest.getCode().getCodingFirstRep().getCode());
@@ -33,8 +34,10 @@ public class QuotationItemMapper<R extends Resource> implements ToERPNextMapping
             quotationItem.setDescription(serviceDisplay + " | Requester: " + requesterDisplay);
 
         } else if (resource instanceof MedicationRequest medicationRequest) {
+            quotationItem.setCustomExternalID(medicationRequest.getIdPart());
             Quantity quantity = medicationRequest.getDispenseRequest().getQuantity();
             quotationItem.setQuantity(quantity.getValue().intValue());
+            quotationItem.setUnitOfMeasure(quantity.getUnit());
             String medicationCode =
                     medicationRequest.getMedicationReference().getReference().split("/")[1];
             quotationItem.setItemCode(medicationCode);

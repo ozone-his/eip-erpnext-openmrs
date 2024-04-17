@@ -14,15 +14,15 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UpdateQuotationRoute extends RouteBuilder {
+public class DeleteQuotationRoute extends RouteBuilder {
 
     @Override
-    public void configure() {
+    public void configure() throws Exception {
         // spotless:off
-		from("direct:erpnext-update-quotation-route")
-			.routeId("erpnext-update-quotation-route")
-			.to("frappe://put/resource?inBody=resource")
-			.log(LoggingLevel.DEBUG, "Quotation with ID ${header." + HEADER_FRAPPE_NAME + "} updated.").end();
+		from("direct:erpnext-delete-quotation-route")
+			.routeId("erpnext-delete-quotation-route")
+			.to("frappe://delete/resource?doctype=Quotation")
+			.log(LoggingLevel.INFO, "Quotation with ID ${header." + HEADER_FRAPPE_NAME + "} deleted.").end();
 		// spotless:on
     }
 }

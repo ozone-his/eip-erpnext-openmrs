@@ -7,10 +7,9 @@
  */
 package com.ozonehis.eip.model.erpnext;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
 @AllArgsConstructor
 public enum OrderType {
     SALES("Sales"),
@@ -18,4 +17,9 @@ public enum OrderType {
     SHOPPING_CART("Shopping Cart");
 
     private final String name;
+
+    @JsonValue
+    public String getName() {
+        return name;
+    }
 }

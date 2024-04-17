@@ -35,7 +35,7 @@ public class Quotation implements ERPNextDocument {
 
     @Nonnull
     @JsonProperty("order_type")
-    private String orderType;
+    private OrderType orderType;
 
     @JsonProperty("title")
     private String title;
@@ -56,35 +56,58 @@ public class Quotation implements ERPNextDocument {
     @JsonProperty("items")
     private Set<QuotationItem> items = new HashSet<>();
 
+    /**
+     * Add items to the quotation
+     *
+     * @param quotationItems the items to add
+     */
     public void addItems(HashSet<QuotationItem> quotationItems) {
-        if (items == null) {
-            items = new HashSet<>();
-        }
         items.addAll(quotationItems);
     }
 
+    /**
+     * Add an item to the quotation
+     *
+     * @param quotationItem the item to add
+     */
     public void addItem(QuotationItem quotationItem) {
-        if (items == null) {
-            items = new HashSet<>();
-        }
         items.add(quotationItem);
     }
 
+    /**
+     * Remove an item from the quotation
+     *
+     * @param quotationItem the item to remove
+     */
     public void removeItem(QuotationItem quotationItem) {
-        if (items == null) {
-            items = new HashSet<>();
-        }
-        items.removeIf(item -> item.getItemCode().equals(quotationItem.getItemCode()));
+        items.removeIf(item -> item.getCustomExternalID().equals(quotationItem.getCustomExternalID()));
     }
 
+    /**
+     * Remove an item from the quotation
+     *
+     * @param customExternalId the ID of the item to remove
+     */
+    public void removeItem(String customExternalId) {
+        items.removeIf(item -> item.getCustomExternalID().equals(customExternalId));
+    }
+
+    /**
+     * Check if the quotation has the given item
+     *
+     * @param quotationItem the item to check
+     * @return true if the item exists, false otherwise
+     */
     public boolean hasItem(QuotationItem quotationItem) {
-        if (items == null) {
-            items = new HashSet<>();
-        }
-        return items.stream().anyMatch(item -> item.getItemCode().equals(quotationItem.getItemCode()));
+        return items.stream().anyMatch(item -> item.getCustomExternalID().equals(quotationItem.getCustomExternalID()));
     }
 
+    /**
+     * Check if the quotation has items
+     *
+     * @return true if the quotation has items, false otherwise
+     */
     public boolean hasItems() {
-        return items != null && !items.isEmpty();
+        return !items.isEmpty();
     }
 }
