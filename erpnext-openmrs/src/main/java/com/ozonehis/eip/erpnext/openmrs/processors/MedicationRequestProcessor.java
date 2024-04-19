@@ -97,11 +97,15 @@ public class MedicationRequestProcessor implements Processor {
                         Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
                         if (quotation != null) {
                             // If the quotation exists, update it
+                            Medication finalMedication = medication;
                             itemHandler
                                     .createQuotationItemIfItemExists(medicationRequest)
                                     .ifPresent(item -> {
                                         if (quotation.hasItem(item)) {
                                             quotation.removeItem(item);
+                                        }
+                                        if (item.getItemCode() == null) {
+                                            item.setItemCode(finalMedication.getIdPart());
                                         }
                                         quotation.addItem(item);
                                     });

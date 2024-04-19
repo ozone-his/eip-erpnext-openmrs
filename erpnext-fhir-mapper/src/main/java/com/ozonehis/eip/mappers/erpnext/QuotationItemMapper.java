@@ -35,12 +35,22 @@ public class QuotationItemMapper<R extends Resource> implements ToERPNextMapping
 
         } else if (resource instanceof MedicationRequest medicationRequest) {
             quotationItem.setCustomExternalID(medicationRequest.getIdPart());
-            Quantity quantity = medicationRequest.getDispenseRequest().getQuantity();
-            quotationItem.setQuantity(quantity.getValue().intValue());
-            quotationItem.setUnitOfMeasure(quantity.getUnit());
-            String medicationCode =
-                    medicationRequest.getMedicationReference().getReference().split("/")[1];
-            quotationItem.setItemCode(medicationCode);
+            if (medicationRequest.hasDispenseRequest()) {
+                if (medicationRequest.getDispenseRequest().hasQuantity()) {
+                    Quantity quantity = medicationRequest.getDispenseRequest().getQuantity();
+                    quotationItem.setQuantity(quantity.getValue().intValue());
+                    quotationItem.setUnitOfMeasure(quantity.getUnit());
+                }
+            }
+            
+            if (medicationRequest.hasMedicationReference()) {
+                if (medicationRequest.getMedicationReference().hasReference()) {
+                    String medicationCode =
+                            medicationRequest.getMedicationReference().getReference().split("/")[1];
+                    quotationItem.setItemCode(medicationCode);
+                }
+            }
+            
             String requesterDisplay = medicationRequest.getRequester().getDisplay();
             String medicationDisplay =
                     medicationRequest.getMedicationReference().getDisplay();

@@ -7,9 +7,10 @@
  */
 package com.ozonehis.eip.erpnext.openmrs;
 
+import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Constants {
 
     public static final String HEADER_FRAPPE_DOCTYPE = "CamelFrappe.doctype";

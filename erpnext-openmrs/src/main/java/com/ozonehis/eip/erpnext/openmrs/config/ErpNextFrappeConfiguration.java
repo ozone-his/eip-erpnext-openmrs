@@ -46,7 +46,7 @@ public class ErpNextFrappeConfiguration {
                     frappeConfiguration.setFrappeClient(FrappeClientBuilder.newClient(serverUrl, username, password)
                             .build());
                 } else {
-                    throw new IllegalArgumentException("ERPNext server URL, username and password must be provided");
+                    throw new IllegalStateException("ERPNext server URL, username and password must be provided");
                 }
 
                 camelContext.getComponent("frappe", FrappeComponent.class).setConfiguration(frappeConfiguration);

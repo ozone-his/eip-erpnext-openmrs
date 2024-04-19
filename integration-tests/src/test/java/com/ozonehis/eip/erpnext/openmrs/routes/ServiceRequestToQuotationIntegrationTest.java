@@ -30,6 +30,7 @@ import com.ozonehis.eip.mappers.erpnext.QuotationItemMapper;
 import com.ozonehis.eip.mappers.erpnext.QuotationMapper;
 import com.ozonehis.eip.model.erpnext.Customer;
 import com.ozonehis.eip.model.erpnext.FrappeSingularDataWrapper;
+import com.ozonehis.eip.model.erpnext.OrderType;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.util.HashMap;
 import org.apache.camel.CamelContext;
@@ -112,7 +113,7 @@ public class ServiceRequestToQuotationIntegrationTest extends BaseRouteIntegrati
                 .getData();
         assertNotNull(quotation);
         assertEquals(ENCOUNTER_PART_OF_UUID, quotation.getQuotationId());
-        assertEquals("Sales", quotation.getOrderType());
+        assertEquals(OrderType.SALES, quotation.getOrderType());
 
         // verify quotation has items
         var items = quotation.getItems();

@@ -73,7 +73,7 @@ services:
           fi
         done;
         echo "sites/common_site_config.json found";
-        bench new-site --no-mariadb-socket --admin-password=password --db-root-password=admin --db-name=erpnext --source_sql=/data/db/erpnext-v15.12.2-init-db.sql.gz --install-app erpnext --set-default frontend;
+        bench new-site --no-mariadb-socket --admin-password=password --db-root-password=admin --db-name=erpnext --source_sql=/data/db/erpnext-v15.12.2-init-db.sql --install-app erpnext --set-default frontend;
         echo "Site fully initialized";
         echo "Running data-import.sh script to import data into the new site";
         source /scripts/data-import.sh;
@@ -118,7 +118,7 @@ services:
       PROXY_READ_TIMEOUT: 120
       CLIENT_MAX_BODY_SIZE: 50m
     ports:
-      - "8080:8080"
+      - "65001:8080"
     volumes:
       - sites:/home/frappe/frappe-bench/sites
       - logs:/home/frappe/frappe-bench/logs

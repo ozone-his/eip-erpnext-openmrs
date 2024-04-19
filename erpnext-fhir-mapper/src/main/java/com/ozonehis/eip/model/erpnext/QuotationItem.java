@@ -13,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,4 +38,19 @@ public class QuotationItem implements ERPNextDocument {
 
     @JsonProperty("additional_notes")
     private String notes;
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        QuotationItem quotationItem = (QuotationItem) o;
+        return Objects.equals(customExternalID, quotationItem.customExternalID);
+    }
+    
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(customExternalID);
+    }
 }
