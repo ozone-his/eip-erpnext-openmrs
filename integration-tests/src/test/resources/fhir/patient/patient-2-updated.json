@@ -44,7 +44,8 @@
       "family": "James",
       "given": [
         "Test"
-      ]
+      ],
+      "text": "Test James"
     }
   ],
   "gender": "male",

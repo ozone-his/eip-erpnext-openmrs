@@ -42,15 +42,17 @@ public class QuotationItemMapper<R extends Resource> implements ToERPNextMapping
                     quotationItem.setUnitOfMeasure(quantity.getUnit());
                 }
             }
-            
+
             if (medicationRequest.hasMedicationReference()) {
                 if (medicationRequest.getMedicationReference().hasReference()) {
-                    String medicationCode =
-                            medicationRequest.getMedicationReference().getReference().split("/")[1];
+                    String medicationCode = medicationRequest
+                            .getMedicationReference()
+                            .getReference()
+                            .split("/")[1];
                     quotationItem.setItemCode(medicationCode);
                 }
             }
-            
+
             String requesterDisplay = medicationRequest.getRequester().getDisplay();
             String medicationDisplay =
                     medicationRequest.getMedicationReference().getDisplay();

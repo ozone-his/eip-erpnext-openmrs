@@ -37,8 +37,9 @@ class CustomerMapperTest {
         Patient patient = new Patient();
         patient.setId("123");
         patient.setGender(Enumerations.AdministrativeGender.MALE);
-        patient.setName(
-                Collections.singletonList(new HumanName().setFamily("Doe").addGiven("John")));
+        patient.setName(Collections.singletonList(
+                new HumanName().setFamily("Doe").addGiven("John").setText("John Doe")));
+
         patient.setIdentifier(Collections.singletonList(
                 new Identifier().setUse(Identifier.IdentifierUse.OFFICIAL).setValue("ID123")));
 
@@ -46,7 +47,7 @@ class CustomerMapperTest {
 
         assertEquals("123", customer.getCustomerId());
         assertEquals(ERPNextGender.MALE, customer.getGender());
-        assertEquals("Doe, John - ID123", customer.getCustomerName());
+        assertEquals("John Doe - ID123", customer.getCustomerName());
         assertEquals(CustomerType.INDIVIDUAL, customer.getCustomerType());
     }
 

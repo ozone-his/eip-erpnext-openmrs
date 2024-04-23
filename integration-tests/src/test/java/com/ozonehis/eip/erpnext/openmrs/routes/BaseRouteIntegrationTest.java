@@ -40,9 +40,7 @@ import org.hl7.fhir.r4.model.Resource;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.test.context.ActiveProfiles;
 
 @Getter
@@ -65,7 +63,7 @@ public abstract class BaseRouteIntegrationTest {
         configuration.setFrappeClient(createFrappeClient());
         context.getComponent("frappe", FrappeComponent.class).setConfiguration(configuration);
     }
-    
+
     @Test
     @DisplayName("should verify customer routes.")
     public void verifyHasCustomerRoutes() {

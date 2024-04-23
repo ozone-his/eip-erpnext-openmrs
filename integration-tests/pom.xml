@@ -86,10 +86,10 @@
         <executions>
           <execution>
             <id>resource-dependencies</id>
-            <phase>process-test-resources</phase>
             <goals>
               <goal>unpack-dependencies</goal>
             </goals>
+            <phase>process-test-resources</phase>
             <configuration>
               <includeArtifactIds>test-infra-erpnext</includeArtifactIds>
               <includes>**/*</includes>

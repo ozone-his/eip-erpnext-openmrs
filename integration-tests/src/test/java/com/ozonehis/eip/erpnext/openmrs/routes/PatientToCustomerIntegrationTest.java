@@ -80,7 +80,7 @@ public class PatientToCustomerIntegrationTest extends BaseRouteIntegrationTest {
                 .getData();
         assertNotNull(createdCustomer);
         assertEquals(createdCustomer.getCustomerId(), PATIENT_1_UUID);
-        assertEquals("Jones, Richard - " + PATIENT_IDENTIFIER_1_VALUE, createdCustomer.getCustomerName());
+        assertEquals("Richard Jones - " + PATIENT_IDENTIFIER_1_VALUE, createdCustomer.getCustomerName());
         assertEquals(CustomerType.INDIVIDUAL, createdCustomer.getCustomerType());
     }
 
@@ -103,7 +103,7 @@ public class PatientToCustomerIntegrationTest extends BaseRouteIntegrationTest {
                 .getData();
         assertNotNull(createdCustomer);
         assertEquals(createdCustomer.getCustomerId(), PATIENT_2_UUID);
-        assertEquals("Johnson, Joshua - " + PATIENT_IDENTIFIER_2_VALUE, createdCustomer.getCustomerName());
+        assertEquals("Joshua Johnson - " + PATIENT_IDENTIFIER_2_VALUE, createdCustomer.getCustomerName());
         assertEquals(CustomerType.INDIVIDUAL, createdCustomer.getCustomerType());
 
         // Update patient
@@ -121,7 +121,7 @@ public class PatientToCustomerIntegrationTest extends BaseRouteIntegrationTest {
                 .getData();
         assertNotNull(updatedCustomer);
         assertEquals(updatedCustomer.getCustomerId(), PATIENT_2_UUID);
-        assertEquals("James, Test - " + PATIENT_IDENTIFIER_2_VALUE, updatedCustomer.getCustomerName());
+        assertEquals("Test James - " + PATIENT_IDENTIFIER_2_VALUE, updatedCustomer.getCustomerName());
     }
 
     @Test
@@ -144,7 +144,7 @@ public class PatientToCustomerIntegrationTest extends BaseRouteIntegrationTest {
 
         assertNotNull(createdCustomer);
         assertEquals(createdCustomer.getCustomerId(), PATIENT_1_UUID);
-        assertEquals("Jones, Richard - " + PATIENT_IDENTIFIER_1_VALUE, createdCustomer.getCustomerName());
+        assertEquals("Richard Jones - " + PATIENT_IDENTIFIER_1_VALUE, createdCustomer.getCustomerName());
         assertEquals(CustomerType.INDIVIDUAL, createdCustomer.getCustomerType());
 
         // Delete patient

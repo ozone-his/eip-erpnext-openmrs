@@ -66,6 +66,6 @@ public class CustomerMapper implements ToERPNextMapping<Patient, Customer> {
     protected Optional<String> getPatientName(Patient patient) {
         return patient.getName().stream()
                 .findFirst()
-                .map(humanName -> humanName.getFamily() + ", " + humanName.getGivenAsSingleString());
+                .map(name -> name.getGiven().get(0) + " " + name.getFamily());
     }
 }
