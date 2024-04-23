@@ -17,8 +17,12 @@ jobs:
       NEXUS_USERNAME: ${{ secrets.NEXUS_USERNAME }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
-  spotless:
+  license:
     needs: validate
+    uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-license-check.yml@main
+
+  spotless:
+    needs: license
     uses: mekomsolutions/shared-github-workflow/.github/workflows/maven-spotless-check.yml@main
 
   release:
