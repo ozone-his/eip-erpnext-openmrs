@@ -28,4 +28,6 @@ public class Constants {
     public static final String EXCHANGE_PROPERTY_ERPNEXT_ADDRESS_NAME = "erpnext.document.address.name";
 
     public static final String FHIR_RESOURCE_TYPE = "fhir.resource.type";
+
+    public static final String EXCHANGE_PROPERTY_SKIP_ENCOUNTER = "skip.encounter";
 }

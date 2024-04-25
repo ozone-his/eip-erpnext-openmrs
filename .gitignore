@@ -20,6 +20,7 @@ target/
 .idea/uiDesigner.xml
 .idea/misc.xml
 .idea/material_theme_project_new.xml
+.idea/codestream.xml
 
 ### Eclipse ###
 .apt_generated
