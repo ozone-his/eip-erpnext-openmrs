@@ -8,6 +8,7 @@
 package com.ozonehis.eip.erpnext.openmrs.routes;
 
 import static com.ozonehis.eip.erpnext.openmrs.Constants.EXCHANGE_PROPERTY_SKIP_ENCOUNTER;
+import static com.ozonehis.eip.erpnext.openmrs.Constants.HEADER_FRAPPE_NAME;
 
 import com.ozonehis.eip.erpnext.openmrs.processors.EncounterProcessor;
 import org.apache.camel.LoggingLevel;
@@ -29,16 +30,18 @@ public class EncounterRouting extends RouteBuilder {
 			.process(encounterProcessor)
 			.choice()
 				.when(simple("${exchangeProperty." + EXCHANGE_PROPERTY_SKIP_ENCOUNTER + "} == true"))
-					.log(LoggingLevel.INFO, "Skipping encounter processing")
-				.otherwise()
-					.log(LoggingLevel.INFO, "Processing encounter")
-				.end()
-			.end();
+					.log(LoggingLevel.DEBUG, "Skip encounter processing, quotation not found or encounter(visit) is not closed.")
+				.endChoice()
+				.when(simple("${exchangeProperty." + EXCHANGE_PROPERTY_SKIP_ENCOUNTER + "} == false"))
+					.log(LoggingLevel.INFO, "Processing encounter with ID ${header." + HEADER_FRAPPE_NAME + "}")
+					.to("direct:erpnext-update-quotation-route")
+				.endChoice()
+			.end().end();
 		
 		from("direct:fhir-encounter")
 			.routeId("fhir-encounter-to-quotation-router")
 			.to("direct:encounter-to-quotation-router")
-			.end();
+				.end();
 		// spotless:on
     }
 }

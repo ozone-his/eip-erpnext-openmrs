@@ -9,8 +9,10 @@ package com.ozonehis.eip.erpnext.openmrs.processors;
 
 import static com.ozonehis.eip.erpnext.openmrs.Constants.EXCHANGE_PROPERTY_SKIP_ENCOUNTER;
 
+import com.ozonehis.eip.erpnext.openmrs.Constants;
 import com.ozonehis.eip.erpnext.openmrs.handlers.QuotationHandler;
 import com.ozonehis.eip.model.erpnext.Quotation;
+import java.util.HashMap;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -32,10 +34,15 @@ public class EncounterProcessor implements Processor {
             Quotation quotation = quotationHandler.getQuotation(encounter.getIdPart());
             if (quotation != null) {
                 quotation.setSubmitted(true);
-                quotationHandler.sendQuotation(
-                        exchange.getContext().createProducerTemplate(),
-                        "direct:erpnext-update-quotation-route",
-                        quotation);
+
+                var headers = new HashMap<String, Object>();
+                headers.put(Constants.HEADER_FRAPPE_DOCTYPE, "Quotation");
+                headers.put(Constants.HEADER_FRAPPE_RESOURCE, quotation);
+                headers.put(Constants.HEADER_FRAPPE_NAME, quotation.getQuotationId());
+
+                exchange.getMessage().setHeaders(headers);
+                exchange.getMessage().setBody(quotation);
+                exchange.setProperty(EXCHANGE_PROPERTY_SKIP_ENCOUNTER, false);
             } else {
                 exchange.setProperty(EXCHANGE_PROPERTY_SKIP_ENCOUNTER, true);
             }

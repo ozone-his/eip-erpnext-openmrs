@@ -45,16 +45,18 @@ public class PatientRouting extends RouteBuilder {
 			.choice()
 				.when(header(HEADER_FHIR_EVENT_TYPE).isEqualTo("c"))
 					.toD("direct:erpnext-create-customer-route")
+				.endChoice()
 				.when(header(HEADER_FHIR_EVENT_TYPE).isEqualTo("u"))
 					.toD("direct:erpnext-update-customer-route")
+				.endChoice()
 				.when(header(HEADER_FHIR_EVENT_TYPE).isEqualTo("d"))
 					.toD("direct:erpnext-delete-customer-route")
-				.otherwise()
-					.log(LoggingLevel.WARN, "Unsupported event type: ${header." + HEADER_FHIR_EVENT_TYPE + "}")
-				.end()
-			.end().end();
+				.endChoice()
+			.end()
+			.log(LoggingLevel.DEBUG, "Patient sync done.").end();
 		
-		from("direct:fhir-patient").routeId("fhir-patient-to-customer-router")
+		from("direct:fhir-patient")
+			.routeId("fhir-patient-to-customer-router")
 			.to("direct:patient-to-customer-router").end();
 		// spotless:on
     }

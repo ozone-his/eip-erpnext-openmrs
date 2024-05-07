@@ -57,7 +57,7 @@ public class AddressHandler {
             headers.put(Constants.HEADER_FRAPPE_NAME, address.getAddressName());
             headers.put(Constants.HEADER_FRAPPE_RESOURCE, address);
             headers.put(Constants.HEADER_FRAPPE_DOCTYPE, "Address");
-            producerTemplate.sendBodyAndHeaders("frappe://put/resource", address, headers);
+            producerTemplate.sendBodyAndHeaders("direct:erpnext-update-address-route", address, headers);
         }
     }
 }
