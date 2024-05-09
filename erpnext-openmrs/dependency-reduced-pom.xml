@@ -58,6 +58,43 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>net.mekomsolutions.maven.plugin</groupId>
+        <artifactId>dependency-tracker-maven-plugin</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <executions>
+          <execution>
+            <id>Compile dependency report</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>track</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <id>Attach the dependency report</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>${project.build.directory}/${project.artifactId}-${project.version}-dependencies.txt</file>
+                  <type>txt</type>
+                  <classifier>${dependencyReportClassifier}</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -158,6 +195,7 @@
   <properties>
     <maven.compiler.target>17</maven.compiler.target>
     <maven.compiler.source>17</maven.compiler.source>
+    <dependencyReportClassifier>dependencies</dependencyReportClassifier>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <openmrs.fhir.version>4.0.0-SNAPSHOT</openmrs.fhir.version>
     <camel.frappe.version>1.0.0-SNAPSHOT</camel.frappe.version>
