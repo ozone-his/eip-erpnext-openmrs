@@ -39,6 +39,8 @@ public class ServiceRequestRouting extends RouteBuilder implements Routing {
     public void configure() {
         // spotless:off
 		from(incomingUri()).routeId(SERVICE_REQUEST_TO_QUOTATION_ROUTER)
+				.filter(body().isNotNull())
+				.filter(exchange -> exchange.getMessage().getBody() instanceof ServiceRequest)
 				.process(exchange -> {
 					ServiceRequest serviceRequest = exchange.getMessage().getBody(ServiceRequest.class);
 					exchange.setProperty(FHIR_RESOURCE_TYPE, serviceRequest.fhirType());

@@ -55,7 +55,7 @@ public class PatientRouting extends RouteBuilder {
 			.end()
 			.log(LoggingLevel.DEBUG, "Patient sync done.").end();
 		
-		from("direct:fhir-patient")
+		from("direct:fhir-patient").filter(body().isNotNull())
 			.routeId("fhir-patient-to-customer-router")
 			.to("direct:patient-to-customer-router").end();
 		// spotless:on

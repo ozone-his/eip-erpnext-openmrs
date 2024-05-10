@@ -13,6 +13,7 @@ import static com.ozonehis.eip.erpnext.openmrs.Constants.HEADER_FRAPPE_NAME;
 import com.ozonehis.eip.erpnext.openmrs.processors.EncounterProcessor;
 import org.apache.camel.LoggingLevel;
 import org.apache.camel.builder.RouteBuilder;
+import org.hl7.fhir.r4.model.Encounter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +41,7 @@ public class EncounterRouting extends RouteBuilder {
 		
 		from("direct:fhir-encounter")
 			.routeId("fhir-encounter-to-quotation-router")
+			.filter(body().isNotNull()).filter(exchange -> exchange.getMessage().getBody() instanceof Encounter)
 			.to("direct:encounter-to-quotation-router")
 				.end();
 		// spotless:on

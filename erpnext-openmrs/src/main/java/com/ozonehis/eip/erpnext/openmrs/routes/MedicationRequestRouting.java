@@ -38,6 +38,8 @@ public class MedicationRequestRouting extends RouteBuilder implements Routing {
         // spotless:off
 		from(incomingUri())
 				.routeId(MEDICATION_REQUEST_TO_QUOTATION_ROUTER)
+				.filter(body().isNotNull())
+				.filter(exchange -> exchange.getMessage().getBody() instanceof MedicationRequest)
 				.process(exchange -> {
 					MedicationRequest medicationRequest = exchange.getMessage().getBody(MedicationRequest.class);
 					exchange.setProperty(FHIR_RESOURCE_TYPE, medicationRequest.fhirType());
