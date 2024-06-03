@@ -31,7 +31,8 @@ public class PatientRouting extends RouteBuilder {
 
     Predicate isPatientSyncEnabled() {
         return exchange -> isPatientSyncEnabled
-                || exchange.getMessage().getHeader(HEADER_ENABLE_PATIENT_SYNC, false, Boolean.class);
+                || exchange.getMessage().getHeader(HEADER_ENABLE_PATIENT_SYNC, false, Boolean.class)
+				|| "u".equals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE, String.class));
     }
 
     @Override
@@ -57,12 +58,6 @@ public class PatientRouting extends RouteBuilder {
 		
 		from("direct:fhir-patient").filter(body().isNotNull())
 			.routeId("fhir-patient-to-customer-router")
-				.process( exchange -> {
-					if ("u".equals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE, String.class))) {
-						// Enable patient sync for updates
-						exchange.getMessage().setHeader(HEADER_ENABLE_PATIENT_SYNC, true);
-					}
-				})
 			.to("direct:patient-to-customer-router").end();
 		// spotless:on
     }
