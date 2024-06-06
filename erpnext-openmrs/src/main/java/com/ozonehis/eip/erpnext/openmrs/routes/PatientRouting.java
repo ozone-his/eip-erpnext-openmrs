@@ -31,7 +31,8 @@ public class PatientRouting extends RouteBuilder {
 
     Predicate isPatientSyncEnabled() {
         return exchange -> isPatientSyncEnabled
-                || Boolean.TRUE.equals(exchange.getIn().getHeader(HEADER_ENABLE_PATIENT_SYNC, Boolean.class));
+                || exchange.getMessage().getHeader(HEADER_ENABLE_PATIENT_SYNC, false, Boolean.class)
+                || "u".equals(exchange.getMessage().getHeader(HEADER_FHIR_EVENT_TYPE, String.class));
     }
 
     @Override
