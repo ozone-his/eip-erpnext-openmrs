@@ -21,6 +21,7 @@ target/
 .idea/misc.xml
 .idea/material_theme_project_new.xml
 .idea/codestream.xml
+.idea
 
 ### Eclipse ###
 .apt_generated
