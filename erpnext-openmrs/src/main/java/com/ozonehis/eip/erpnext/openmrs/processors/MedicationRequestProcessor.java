@@ -88,7 +88,7 @@ public class MedicationRequestProcessor implements Processor {
                 }
                 String encounterVisitUuid = encounter.getPartOf().getReference().split("/")[1];
                 if ("c".equals(eventType) || "u".equals(eventType)) {
-                    customerHandler.ensureCustomerExistsAndUpdate(producerTemplate, patient);
+                    customerHandler.syncCustomerWithPatient(producerTemplate, patient);
                     var customer = customerMapper.toERPNext(patient);
                     // If the MedicationRequest is canceled, remove the item from the quotation
                     if (medicationRequest.getStatus().equals(MedicationRequest.MedicationRequestStatus.CANCELLED)) {

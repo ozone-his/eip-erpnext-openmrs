@@ -23,6 +23,7 @@ import com.ozonehis.eip.mappers.erpnext.AddressMapper;
 import com.ozonehis.eip.mappers.erpnext.CustomerMapper;
 import com.ozonehis.eip.model.erpnext.Customer;
 import java.util.Collections;
+import java.util.Optional;
 import org.apache.camel.Exchange;
 import org.hl7.fhir.r4.model.Address;
 import org.hl7.fhir.r4.model.Patient;
@@ -79,7 +80,7 @@ class PatientProcessorTest extends BaseProcessorTest {
         // Mock behavior
         when(customerMapper.toERPNext(patient)).thenReturn(customer);
         when(addressMapper.toERPNext(address)).thenReturn(erpNextAddress);
-        when(addressHandler.addressExists(ADDRESS_ID)).thenReturn(true);
+        when(addressHandler.getAddress(ADDRESS_ID)).thenReturn(Optional.of(erpNextAddress));
 
         // Act
         patientProcessor.process(exchange);
@@ -91,7 +92,7 @@ class PatientProcessorTest extends BaseProcessorTest {
 
         assertEquals(exchange.getProperty(EXCHANGE_PROPERTY_ERPNEXT_ADDRESS), erpNextAddress);
 
-        verify(addressHandler, times(1)).addressExists(ADDRESS_ID);
+        verify(addressHandler, times(1)).getAddress(ADDRESS_ID);
         verify(addressMapper, times(1)).toERPNext(address);
         verify(customerMapper, times(1)).toERPNext(patient);
     }
@@ -121,7 +122,7 @@ class PatientProcessorTest extends BaseProcessorTest {
         assertEquals(exchange.getMessage().getHeader(HEADER_FRAPPE_NAME), customer.getCustomerId());
 
         verify(customerMapper, times(1)).toERPNext(patient);
-        verify(addressHandler, times(0)).addressExists(ADDRESS_ID);
+        verify(addressHandler, times(0)).getAddress(ADDRESS_ID);
     }
 
     @Test
@@ -149,6 +150,6 @@ class PatientProcessorTest extends BaseProcessorTest {
         assertEquals(exchange.getMessage().getHeader(HEADER_FRAPPE_NAME), customer.getCustomerId());
 
         verify(customerMapper, times(1)).toERPNext(patient);
-        verify(addressHandler, times(0)).addressExists(ADDRESS_ID);
+        verify(addressHandler, times(0)).getAddress(ADDRESS_ID);
     }
 }

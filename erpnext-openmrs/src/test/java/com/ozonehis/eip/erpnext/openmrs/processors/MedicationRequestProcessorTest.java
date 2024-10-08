@@ -111,13 +111,13 @@ class MedicationRequestProcessorTest extends BaseProcessorTest {
                 .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.QuotationItem()));
         when(quotationHandler.getQuotation(anyString())).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
         when(patient.getIdPart()).thenReturn("12345");
-        when(customerHandler.customerExists(anyString())).thenReturn(false);
+        when(customerHandler.getCustomer(anyString())).thenReturn(Optional.of(customer));
 
         // Act
         medicationRequestProcessor.process(exchange);
 
         // Verify
-        verify(customerHandler, times(1)).ensureCustomerExistsAndUpdate(any(), any());
+        verify(customerHandler, times(1)).syncCustomerWithPatient(any(), any());
         verify(quotationHandler, times(1)).sendQuotation(any(), anyString(), any());
         verify(quotationHandler, times(1)).getQuotation(anyString());
         verify(itemHandler, times(1)).createQuotationItemIfItemExists(medicationRequest);
