@@ -149,4 +149,60 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
         // Act and Assert
         assertThrows(IllegalArgumentException.class, () -> serviceRequestProcessor.process(exchange));
     }
+
+    @Test
+    @DisplayName("Should process service request with delete event type")
+    void shouldProcessServiceRequestWithDeleteEventType() {
+        // setup
+        Bundle bundle = mock(Bundle.class);
+        Patient patient = mock(Patient.class);
+        Encounter encounter = mock(Encounter.class);
+        ServiceRequest serviceRequest = mock(ServiceRequest.class);
+        Customer customer = new Customer();
+        customer.setCustomerId("12345");
+        customer.setCustomerName("John Doe");
+        customer.setCustomerType(CustomerType.INDIVIDUAL);
+
+        Exchange exchange = createExchange(bundle, "d");
+
+        // Mock behavior
+        when(bundle.getEntry())
+                .thenReturn(List.of(
+                        new Bundle.BundleEntryComponent().setResource(patient),
+                        new Bundle.BundleEntryComponent().setResource(encounter),
+                        new Bundle.BundleEntryComponent().setResource(serviceRequest)));
+
+        Reference visitReference = mock(Reference.class);
+        when(visitReference.getReference()).thenReturn("Encounter/123");
+        when(encounter.getPartOf()).thenReturn(visitReference);
+        when(quotationMapper.toERPNext(encounter)).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
+        when(customerMapper.toERPNext(patient)).thenReturn(customer);
+        when(itemHandler.createQuotationItemIfItemExists(serviceRequest))
+                .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.QuotationItem()));
+        when(patient.getIdPart()).thenReturn("12345");
+        when(customerHandler.getCustomer(anyString())).thenReturn(Optional.of(customer));
+        when(quotationHandler.getQuotation(anyString())).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
+
+        // Act
+        serviceRequestProcessor.process(exchange);
+
+        // Verify
+        verify(quotationHandler, times(1)).sendQuotation(any(), anyString(), any());
+        verify(quotationHandler, times(1)).getQuotation(anyString());
+        verify(itemHandler, times(1)).createQuotationItemIfItemExists(serviceRequest);
+    }
+
+    @Test
+    @DisplayName("Should throw exception for unsupported event type")
+    void shouldThrowExceptionForUnsupportedEventType() {
+        // setup
+        Bundle bundle = mock(Bundle.class);
+        Exchange exchange = createExchange(bundle, "x");
+
+        // Act and Assert
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> serviceRequestProcessor.process(exchange),
+                "Unsupported event type");
+    }
 }
