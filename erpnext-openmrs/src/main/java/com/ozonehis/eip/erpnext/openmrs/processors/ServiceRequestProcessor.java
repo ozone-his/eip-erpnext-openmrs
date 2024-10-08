@@ -73,15 +73,15 @@ public class ServiceRequestProcessor implements Processor {
             if (patient == null || encounter == null || serviceRequest == null) {
                 throw new IllegalArgumentException("Patient, Encounter or ServiceRequest not found in the bundle");
             } else {
-                if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
-                        && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
-                    log.info("Processing ServiceRequest for patient with UUID {}", patient.getIdPart());
-                    var customer = customerMapper.toERPNext(patient);
-                    String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
-                    if (eventType == null) {
-                        throw new IllegalArgumentException("Event type not found in the exchange headers");
-                    }
-                    if ("c".equals(eventType) || "u".equals(eventType)) {
+                log.info("Processing ServiceRequest for patient with UUID {}", patient.getIdPart());
+                String eventType = exchange.getMessage().getHeader(Constants.HEADER_FHIR_EVENT_TYPE, String.class);
+                if (eventType == null) {
+                    throw new IllegalArgumentException("Event type not found in the exchange headers");
+                }
+                if ("c".equals(eventType) || "u".equals(eventType)) {
+                    if (serviceRequest.getStatus().equals(ServiceRequest.ServiceRequestStatus.ACTIVE)
+                            && serviceRequest.getIntent().equals(ServiceRequest.ServiceRequestIntent.ORDER)) {
+                        var customer = customerMapper.toERPNext(patient);
                         customerHandler.syncCustomerWithPatient(producerTemplate, patient);
                         String encounterVisitUuid =
                                 encounter.getPartOf().getReference().split("/")[1];
@@ -112,6 +112,26 @@ public class ServiceRequestProcessor implements Processor {
                                     producerTemplate, "direct:erpnext-create-quotation-route", quotation);
                         }
                     }
+                } else if ("d".equals(eventType)) {
+                    String encounterVisitUuid =
+                            encounter.getPartOf().getReference().split("/")[1];
+                    Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
+                    // If the Quotation exists and still a draft, remove the item
+                    if (quotation != null && !quotation.isSubmitted()) {
+                        this.itemHandler
+                                .createQuotationItemIfItemExists(serviceRequest)
+                                .ifPresent(quotation::removeItem);
+                        // If the quotation has no items, delete it
+                        if (quotation.getItems().isEmpty()) {
+                            quotationHandler.sendQuotation(
+                                    producerTemplate, "direct:erpnext-delete-quotation-route", quotation);
+                        } else {
+                            quotationHandler.sendQuotation(
+                                    producerTemplate, "direct:erpnext-update-quotation-route", quotation);
+                        }
+                    }
+                } else {
+                    throw new IllegalArgumentException("Unsupported event type: " + eventType);
                 }
             }
         } catch (IOException e) {
