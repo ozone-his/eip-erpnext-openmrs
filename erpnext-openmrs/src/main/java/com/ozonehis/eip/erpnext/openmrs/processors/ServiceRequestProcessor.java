@@ -82,7 +82,7 @@ public class ServiceRequestProcessor implements Processor {
                         throw new IllegalArgumentException("Event type not found in the exchange headers");
                     }
                     if ("c".equals(eventType) || "u".equals(eventType)) {
-                        customerHandler.ensureCustomerExistsAndUpdate(producerTemplate, patient);
+                        customerHandler.syncCustomerWithPatient(producerTemplate, patient);
                         String encounterVisitUuid =
                                 encounter.getPartOf().getReference().split("/")[1];
                         Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);

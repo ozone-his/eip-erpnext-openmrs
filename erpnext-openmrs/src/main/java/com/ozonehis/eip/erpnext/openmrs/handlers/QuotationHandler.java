@@ -57,18 +57,19 @@ public class QuotationHandler {
     public Quotation getQuotation(String quotationId) {
         try (FrappeResponse response =
                 frappeClient.get("Quotation", quotationId).execute()) {
-            if (response.code() == HttpStatus.SC_OK) {
-                TypeReference<FrappeSingularDataWrapper<Quotation>> typeReference = new TypeReference<>() {};
-
-                FrappeSingularDataWrapper<Quotation> quotationWrapper = response.returnAs(typeReference);
-                return quotationWrapper.getData();
-            } else {
-                log.debug("Quotation with UUID: {} not found", quotationId);
-                return null;
+            switch (response.code()) {
+                case HttpStatus.SC_NOT_FOUND:
+                    // Quotation doesn't exist
+                    return null;
+                case HttpStatus.SC_OK:
+                    TypeReference<FrappeSingularDataWrapper<Quotation>> typeReference = new TypeReference<>() {};
+                    FrappeSingularDataWrapper<Quotation> quotationWrapper = response.returnAs(typeReference);
+                    return quotationWrapper.getData();
+                default:
+                    throw new FrappeClientException("Error while fetching quotation with ID " + quotationId);
             }
         } catch (FrappeClientException | IOException e) {
-            log.error("Error while fetching quotation with ID {}", quotationId, e);
-            return null;
+            throw new FrappeClientException("Error while fetching quotation with ID " + quotationId, e);
         }
     }
 

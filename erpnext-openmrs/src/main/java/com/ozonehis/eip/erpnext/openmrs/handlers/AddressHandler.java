@@ -16,8 +16,8 @@ import com.ozonehis.eip.model.erpnext.Address;
 import com.ozonehis.eip.model.erpnext.FrappeSingularDataWrapper;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 import lombok.Setter;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.ProducerTemplate;
 import org.apache.hc.core5.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,25 +30,33 @@ public class AddressHandler {
     @Autowired
     private FrappeClient frappeClient;
 
-    public boolean addressExists(String addressName) {
+    /**
+     *  Get an address by name
+     *
+     * @param addressName the name of the address
+     * @return the address if it exists, empty otherwise
+     */
+    public Optional<Address> getAddress(String addressName) {
         try (FrappeResponse response = frappeClient.get("Address", addressName).execute()) {
-            if (response.code() == HttpStatus.SC_OK) {
-                TypeReference<FrappeSingularDataWrapper<com.ozonehis.eip.model.erpnext.Address>> typeReference =
-                        new TypeReference<>() {};
+            switch (response.code()) {
+                case HttpStatus.SC_NOT_FOUND:
+                    return Optional.empty();
+                case HttpStatus.SC_OK:
+                    TypeReference<FrappeSingularDataWrapper<Address>> typeReference = new TypeReference<>() {};
 
-                FrappeSingularDataWrapper<com.ozonehis.eip.model.erpnext.Address> addressWrapper =
-                        response.returnAs(typeReference);
-                return addressWrapper.getData().getAddressName().equals(addressName);
-            } else {
-                return false;
+                    FrappeSingularDataWrapper<Address> addressWrapper = response.returnAs(typeReference);
+                    return Optional.of(addressWrapper.getData());
+                default:
+                    throw new FrappeClientException(
+                            "Error while checking if address with uuid: " + addressName + " exists");
             }
         } catch (FrappeClientException | IOException e) {
-            throw new CamelExecutionException("Error while checking if address exists", null, e);
+            throw new FrappeClientException("Error while checking if address exists", e);
         }
     }
 
     public void disableOldAddresses(ProducerTemplate producerTemplate, Address address) {
-        if (addressExists(address.getAddressName())) {
+        if (getAddress(address.getAddressName()).isPresent()) {
             // Disable the address
             address.setDisabled(true);
             address.setPrimaryAddress(false);
