@@ -22,9 +22,11 @@ import com.ozonehis.eip.model.erpnext.Customer;
 import com.ozonehis.eip.model.erpnext.Link;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -32,6 +34,7 @@ import org.hl7.fhir.r4.model.Patient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Setter
 @Getter
 @Component
@@ -58,7 +61,9 @@ public class PatientProcessor implements Processor {
 
         String eventType = message.getHeader(HEADER_FHIR_EVENT_TYPE, String.class);
         if ("u".equals(eventType) || "d".equals(eventType)) {
-            headers.put(HEADER_FRAPPE_NAME, customer.getCustomerId());
+            headers.put(
+                    HEADER_FRAPPE_NAME,
+                    Objects.requireNonNull(customer, "Customer cannot be null").getCustomerId());
         }
 
         if (patient.hasAddress()) {
@@ -66,7 +71,7 @@ public class PatientProcessor implements Processor {
                     .filter(a -> a.getUse() == org.hl7.fhir.r4.model.Address.AddressUse.HOME)
                     .findFirst()
                     .ifPresent(address -> {
-                        addressHandler.addressExists(address.getIdElement().getValue());
+                        addressHandler.getAddress(address.getIdElement().getValue());
                         Address erpNextAddress = addressMapper.toERPNext(address);
                         if (patient.hasTelecom()) {
                             erpNextAddress.setPhone(patient.getTelecomFirstRep().getValue());

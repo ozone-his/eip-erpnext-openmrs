@@ -16,6 +16,7 @@ import com.ozonehis.eip.mappers.erpnext.CustomerMapper;
 import com.ozonehis.eip.mappers.erpnext.QuotationMapper;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.util.List;
+import java.util.Optional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -88,15 +89,16 @@ public class MedicationRequestProcessor implements Processor {
                 }
                 String encounterVisitUuid = encounter.getPartOf().getReference().split("/")[1];
                 if ("c".equals(eventType) || "u".equals(eventType)) {
-                    customerHandler.ensureCustomerExistsAndUpdate(producerTemplate, patient);
+                    customerHandler.syncCustomerWithPatient(producerTemplate, patient);
                     var customer = customerMapper.toERPNext(patient);
                     // If the MedicationRequest is canceled, remove the item from the quotation
                     if (medicationRequest.getStatus().equals(MedicationRequest.MedicationRequestStatus.CANCELLED)) {
                         handleQuotationWithItems(encounterVisitUuid, medicationRequest, exchange, producerTemplate);
                     } else {
-                        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
-                        if (quotation != null) {
+                        Optional<Quotation> quotationOptional = quotationHandler.getQuotation(encounterVisitUuid);
+                        if (quotationOptional.isPresent()) {
                             // If the quotation exists, update it
+                            Quotation quotation = quotationOptional.get();
                             Medication finalMedication = medication;
                             itemHandler
                                     .createQuotationItemIfItemExists(medicationRequest)
@@ -140,8 +142,9 @@ public class MedicationRequestProcessor implements Processor {
             MedicationRequest medicationRequest,
             Exchange exchange,
             ProducerTemplate producerTemplate) {
-        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
-        if (quotation != null) {
+        Optional<Quotation> quotationOptional = quotationHandler.getQuotation(encounterVisitUuid);
+        if (quotationOptional.isPresent()) {
+            Quotation quotation = quotationOptional.get();
             log.debug("Removing item from quotation with ID {}", medicationRequest.getIdPart());
             quotation.removeItem(medicationRequest.getIdPart());
 
