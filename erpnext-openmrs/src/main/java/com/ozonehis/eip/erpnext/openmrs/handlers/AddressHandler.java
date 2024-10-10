@@ -38,20 +38,19 @@ public class AddressHandler {
      */
     public Optional<Address> getAddress(String addressName) {
         try (FrappeResponse response = frappeClient.get("Address", addressName).execute()) {
-            switch (response.code()) {
-                case HttpStatus.SC_NOT_FOUND:
-                    return Optional.empty();
-                case HttpStatus.SC_OK:
+            return switch (response.code()) {
+                case HttpStatus.SC_NOT_FOUND -> Optional.empty();
+                case HttpStatus.SC_OK -> {
                     TypeReference<FrappeSingularDataWrapper<Address>> typeReference = new TypeReference<>() {};
 
                     FrappeSingularDataWrapper<Address> addressWrapper = response.returnAs(typeReference);
-                    return Optional.of(addressWrapper.getData());
-                default:
-                    throw new FrappeClientException(
-                            "Error while checking if address with uuid: " + addressName + " exists");
-            }
+                    yield Optional.of(addressWrapper.getData());
+                }
+                default -> throw new FrappeClientException("Error while fetching address with name: " + addressName
+                        + " with error message:" + response.message());
+            };
         } catch (FrappeClientException | IOException e) {
-            throw new FrappeClientException("Error while checking if address exists", e);
+            throw new FrappeClientException("Error while fetching address", e);
         }
     }
 

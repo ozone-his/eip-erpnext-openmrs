@@ -13,6 +13,7 @@ import com.ozonehis.eip.erpnext.openmrs.Constants;
 import com.ozonehis.eip.erpnext.openmrs.handlers.QuotationHandler;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.util.HashMap;
+import java.util.Optional;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.Processor;
@@ -31,8 +32,9 @@ public class EncounterProcessor implements Processor {
         Message message = exchange.getMessage();
         Encounter encounter = message.getBody(Encounter.class);
         if (encounter != null && encounter.hasPeriod() && encounter.getPeriod().hasEnd()) {
-            Quotation quotation = quotationHandler.getQuotation(encounter.getIdPart());
-            if (quotation != null) {
+            Optional<Quotation> quotationOptional = quotationHandler.getQuotation(encounter.getIdPart());
+            if (quotationOptional.isPresent()) {
+                Quotation quotation = quotationOptional.get();
                 quotation.setSubmitted(true);
 
                 var headers = new HashMap<String, Object>();

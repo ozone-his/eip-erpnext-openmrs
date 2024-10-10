@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.Optional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.camel.CamelExecutionException;
 import org.apache.camel.ProducerTemplate;
 import org.apache.hc.core5.http.HttpStatus;
 import org.hl7.fhir.r4.model.Patient;
@@ -45,21 +44,19 @@ public class CustomerHandler {
     public Optional<Customer> getCustomer(String name) {
         try (FrappeResponse response =
                 frappeClient.get("Customer", name).withField("name").execute()) {
-            switch (response.code()) {
-                    // Customer doesn't exist
-                case HttpStatus.SC_NOT_FOUND:
-                    return Optional.empty();
-                case HttpStatus.SC_OK:
+            return switch (response.code()) {
+                case HttpStatus.SC_NOT_FOUND -> Optional.empty();
+                case HttpStatus.SC_OK -> {
                     TypeReference<FrappeSingularDataWrapper<Customer>> typeReference = new TypeReference<>() {};
 
                     FrappeSingularDataWrapper<Customer> customerWrapper = response.returnAs(typeReference);
-                    return Optional.of(customerWrapper.getData());
-                default:
-                    throw new FrappeClientException("Error while checking if customer exists with status code: "
-                            + response.code() + " message: " + response.message());
-            }
+                    yield Optional.of(customerWrapper.getData());
+                }
+                default -> throw new FrappeClientException("Error while fetching customer with name " + name
+                        + " with error message: " + response.message());
+            };
         } catch (FrappeClientException | IOException e) {
-            throw new CamelExecutionException("Error while checking if customer exists", null, e);
+            throw new FrappeClientException("Error while fetching customer", e);
         }
     }
 

@@ -109,7 +109,8 @@ class MedicationRequestProcessorTest extends BaseProcessorTest {
         when(customerMapper.toERPNext(patient)).thenReturn(customer);
         when(itemHandler.createQuotationItemIfItemExists(medicationRequest))
                 .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.QuotationItem()));
-        when(quotationHandler.getQuotation(anyString())).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
+        when(quotationHandler.getQuotation(anyString()))
+                .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.Quotation()));
         when(patient.getIdPart()).thenReturn("12345");
         when(customerHandler.getCustomer(anyString())).thenReturn(Optional.of(customer));
 
