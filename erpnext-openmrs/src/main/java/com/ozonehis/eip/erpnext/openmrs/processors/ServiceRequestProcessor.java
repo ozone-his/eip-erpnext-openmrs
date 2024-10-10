@@ -15,6 +15,7 @@ import com.ozonehis.eip.mappers.erpnext.QuotationMapper;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.CamelExecutionException;
@@ -85,10 +86,11 @@ public class ServiceRequestProcessor implements Processor {
                         customerHandler.syncCustomerWithPatient(producerTemplate, patient);
                         String encounterVisitUuid =
                                 encounter.getPartOf().getReference().split("/")[1];
-                        Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
-                        if (quotation != null) {
+                        Optional<Quotation> quotationOptional = quotationHandler.getQuotation(encounterVisitUuid);
+                        // Quotation quotation = quotationOptional.orElseGet(null);
+                        if (quotationOptional.isPresent()) {
                             // Quotation exists, update it with the new item
-                            Quotation finalQuotation = quotation;
+                            Quotation finalQuotation = quotationOptional.get();
                             this.itemHandler
                                     .createQuotationItemIfItemExists(serviceRequest)
                                     .ifPresent(quotationItem -> {
@@ -101,7 +103,7 @@ public class ServiceRequestProcessor implements Processor {
                             quotationHandler.sendQuotation(
                                     producerTemplate, "direct:erpnext-update-quotation-route", finalQuotation);
                         } else {
-                            quotation = quotationMapper.toERPNext(encounter);
+                            Quotation quotation = quotationMapper.toERPNext(encounter);
                             quotation.setTitle(customer.getCustomerName());
                             quotation.setCustomer(customer.getCustomerId());
                             quotation.setCustomerName(customer.getCustomerName());
@@ -115,19 +117,24 @@ public class ServiceRequestProcessor implements Processor {
                 } else if ("d".equals(eventType)) {
                     String encounterVisitUuid =
                             encounter.getPartOf().getReference().split("/")[1];
-                    Quotation quotation = quotationHandler.getQuotation(encounterVisitUuid);
+                    Optional<Quotation> quotationOptional = quotationHandler.getQuotation(encounterVisitUuid);
                     // If the Quotation exists and still a draft, remove the item
-                    if (quotation != null && !quotation.isSubmitted()) {
+                    if (quotationOptional.isPresent()
+                            && !quotationOptional.get().isSubmitted()) {
                         this.itemHandler
                                 .createQuotationItemIfItemExists(serviceRequest)
-                                .ifPresent(quotation::removeItem);
+                                .ifPresent(quotationItem -> {
+                                    if (quotationOptional.get().hasItem(quotationItem)) {
+                                        quotationOptional.get().removeItem(quotationItem);
+                                    }
+                                });
                         // If the quotation has no items, delete it
-                        if (quotation.getItems().isEmpty()) {
+                        if (quotationOptional.get().getItems().isEmpty()) {
                             quotationHandler.sendQuotation(
-                                    producerTemplate, "direct:erpnext-delete-quotation-route", quotation);
+                                    producerTemplate, "direct:erpnext-delete-quotation-route", quotationOptional.get());
                         } else {
                             quotationHandler.sendQuotation(
-                                    producerTemplate, "direct:erpnext-update-quotation-route", quotation);
+                                    producerTemplate, "direct:erpnext-update-quotation-route", quotationOptional.get());
                         }
                     }
                 } else {

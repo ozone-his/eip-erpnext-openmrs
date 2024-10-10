@@ -46,10 +46,10 @@ public class ItemHandler {
                     yield Optional.ofNullable(response.returnAs(typeReference).getData());
                 }
                 default -> throw new FrappeClientException(
-                        "Error while checking if Item with uuid: " + name + " exists" + response.message());
+                        "Error while fetching Item with name: " + name + " exists" + response.message());
             };
         } catch (FrappeClientException | IOException e) {
-            throw new FrappeClientException("Error while checking if Item exists", e);
+            throw new FrappeClientException("Error while fetching Item", e);
         }
     }
 

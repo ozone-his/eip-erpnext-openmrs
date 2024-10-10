@@ -16,6 +16,7 @@ import com.ozonehis.eip.model.erpnext.FrappeSingularDataWrapper;
 import com.ozonehis.eip.model.erpnext.Quotation;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Optional;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.camel.ProducerTemplate;
@@ -32,42 +33,22 @@ public class QuotationHandler {
     private FrappeClient frappeClient;
 
     /**
-     * Check if quotation exists
-     *
-     * @param name the name of the quotation document
-     * @return true if quotation exists, false otherwise
+     * Get a quotation by ID
+     * @param quotationId the ID of the quotation
+     * @return the quotation if it exists, empty otherwise
      */
-    public boolean quotationExists(String name) {
-        try (FrappeResponse response = frappeClient.get("Quotation", name).execute()) {
-            if (response.code() == HttpStatus.SC_OK) {
-                TypeReference<FrappeSingularDataWrapper<Quotation>> typeReference = new TypeReference<>() {};
-
-                FrappeSingularDataWrapper<Quotation> customerWrapper = response.returnAs(typeReference);
-                Quotation quotation = customerWrapper.getData();
-                return quotation.getQuotationId().equals(name);
-            } else {
-                return false;
-            }
-        } catch (FrappeClientException | IOException e) {
-            log.error("Error while checking if quotation exists", e);
-            return false;
-        }
-    }
-
-    public Quotation getQuotation(String quotationId) {
+    public Optional<Quotation> getQuotation(String quotationId) {
         try (FrappeResponse response =
                 frappeClient.get("Quotation", quotationId).execute()) {
-            switch (response.code()) {
-                case HttpStatus.SC_NOT_FOUND:
-                    // Quotation doesn't exist
-                    return null;
-                case HttpStatus.SC_OK:
+            return switch (response.code()) {
+                case HttpStatus.SC_NOT_FOUND -> Optional.empty();
+                case HttpStatus.SC_OK -> {
                     TypeReference<FrappeSingularDataWrapper<Quotation>> typeReference = new TypeReference<>() {};
                     FrappeSingularDataWrapper<Quotation> quotationWrapper = response.returnAs(typeReference);
-                    return quotationWrapper.getData();
-                default:
-                    throw new FrappeClientException("Error while fetching quotation with ID " + quotationId);
-            }
+                    yield Optional.ofNullable(quotationWrapper.getData());
+                }
+                default -> throw new FrappeClientException("Error while fetching quotation with ID " + quotationId);
+            };
         } catch (FrappeClientException | IOException e) {
             throw new FrappeClientException("Error while fetching quotation with ID " + quotationId, e);
         }

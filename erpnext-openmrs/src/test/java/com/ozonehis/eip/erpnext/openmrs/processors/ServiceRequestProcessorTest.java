@@ -181,7 +181,8 @@ class ServiceRequestProcessorTest extends BaseProcessorTest {
                 .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.QuotationItem()));
         when(patient.getIdPart()).thenReturn("12345");
         when(customerHandler.getCustomer(anyString())).thenReturn(Optional.of(customer));
-        when(quotationHandler.getQuotation(anyString())).thenReturn(new com.ozonehis.eip.model.erpnext.Quotation());
+        when(quotationHandler.getQuotation(anyString()))
+                .thenReturn(Optional.of(new com.ozonehis.eip.model.erpnext.Quotation()));
 
         // Act
         serviceRequestProcessor.process(exchange);
