@@ -13,7 +13,7 @@
 
   <groupId>com.ozonehis</groupId>
   <artifactId>eip-erpnext-openmrs-parent</artifactId>
-  <version>1.3.0</version>
+  <version>1.4.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <name>EIP ERPNext OpenMRS Parent</name>
@@ -56,7 +56,7 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <eip.client.version>2.3.0</eip.client.version>
+    <eip.client.version>2.4.0-SNAPSHOT</eip.client.version>
     <camel.version>4.0.1</camel.version>
     <fhir-stu4.version>7.0.0</fhir-stu4.version>
     <spotless.version>2.30.0</spotless.version>
