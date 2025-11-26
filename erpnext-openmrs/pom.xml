@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.ozonehis</groupId>
     <artifactId>eip-erpnext-openmrs-parent</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
   </parent>
 
   <artifactId>eip-erpnext-openmrs</artifactId>
@@ -25,9 +25,9 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <camel.frappe.version>1.2.0-SNAPSHOT</camel.frappe.version>
+    <camel.frappe.version>1.1.0</camel.frappe.version>
     <camel.version>4.0.1</camel.version>
-    <camel.openmrs.fhir.version>4.2.0-SNAPSHOT</camel.openmrs.fhir.version>
+    <camel.openmrs.fhir.version>4.2.0</camel.openmrs.fhir.version>
 
     <!-- Classifier for the dependency report artifact -->
     <dependencyReportClassifier>dependencies</dependencyReportClassifier>
@@ -104,7 +104,7 @@
       <plugin>
         <groupId>net.mekomsolutions.maven.plugin</groupId>
         <artifactId>dependency-tracker-maven-plugin</artifactId>
-        <version>1.1.0-SNAPSHOT</version>
+        <version>1.0.0</version>
         <executions>
           <execution>
             <id>Compile dependency report</id>

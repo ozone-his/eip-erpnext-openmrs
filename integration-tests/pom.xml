@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.ozonehis</groupId>
     <artifactId>eip-erpnext-openmrs-parent</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
   </parent>
 
   <artifactId>erpnext-openmrs-integration-tests</artifactId>
@@ -30,7 +30,7 @@
     <dependency>
       <groupId>com.ozonehis</groupId>
       <artifactId>eip-erpnext-openmrs</artifactId>
-      <version>1.3.0-SNAPSHOT</version>
+      <version>1.3.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -49,7 +49,7 @@
     <dependency>
       <groupId>com.ozonehis.camel</groupId>
       <artifactId>camel-frappe</artifactId>
-      <version>1.2.0-SNAPSHOT</version>
+      <version>1.1.0</version>
       <scope>test</scope>
     </dependency>
     <dependency>

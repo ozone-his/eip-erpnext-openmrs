@@ -13,7 +13,7 @@
   <parent>
     <groupId>com.ozonehis</groupId>
     <artifactId>eip-erpnext-openmrs-parent</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.3.0</version>
   </parent>
 
   <artifactId>erpnext-fhir-mapper</artifactId>
