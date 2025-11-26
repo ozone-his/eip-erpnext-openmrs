@@ -16,4 +16,4 @@ services:
     ports:
       - "8085:8080"
     volumes:
-      - ../target/eip-erpnext-openmrs-1.3.0.jar:/eip-client/routes/eip-erpnext-openmrs-1.3.0.jar
+      - ../target/eip-erpnext-openmrs-1.4.0-SNAPSHOT.jar:/eip-client/routes/eip-erpnext-openmrs-1.4.0-SNAPSHOT.jar
