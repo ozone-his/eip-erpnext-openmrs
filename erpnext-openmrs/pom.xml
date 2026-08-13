@@ -134,6 +134,6 @@
           </plugin>
         </plugins>
       </build>
-   </profile>  
+    </profile>
   </profiles>
 </project>
